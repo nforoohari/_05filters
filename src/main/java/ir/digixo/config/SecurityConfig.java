@@ -1,10 +1,11 @@
 package ir.digixo.config;
 
+//import ir.digixo.filter.C01BeforeFilter;
+//import ir.digixo.filter.C02AfterFilter;
 import ir.digixo.filter.C03CustomKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -20,11 +21,12 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 public class SecurityConfig {
 
-
+//    @Autowired
+//    private C01BeforeFilter c01BeforeFilter;
+//    @Autowired
+//    private C02AfterFilter c02AfterFilter;
     @Autowired
     private C03CustomKey c03CustomKey;
-
-
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -34,11 +36,10 @@ public class SecurityConfig {
                 .roles("ADMIN")
                 .build();
         UserDetails user2 = User.builder()
-                .username("nasim")
+                .username("nima")
                 .password("1234")
                 .roles("ADMIN")
                 .build();
-
 
         return new InMemoryUserDetailsManager(user1, user2);
     }
@@ -48,35 +49,18 @@ public class SecurityConfig {
         return NoOpPasswordEncoder.getInstance();
     }
 
-
-    ///
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//before
-        //  http.addFilterBefore(new C01BeforeFilter(), BasicAuthenticationFilter.class);
-        //after
-        //  http.addFilterAfter(new C02After(), BasicAuthenticationFilter.class);
 
-
+//        http.addFilterBefore(c01BeforeFilter, BasicAuthenticationFilter.class);
+//        http.addFilterAfter(c02AfterFilter, BasicAuthenticationFilter.class);
         http.addFilterAt(c03CustomKey, BasicAuthenticationFilter.class);
 
-
         http.authorizeHttpRequests(
-                        authorizationManagerRequestMatcherRegistry -> {
-                            authorizationManagerRequestMatcherRegistry.anyRequest().permitAll();
-                        }
-                )
-                .formLogin(httpSecurityFormLoginConfigurer -> {
-                    httpSecurityFormLoginConfigurer
-                            .loginPage("/showMyLoginform")
-                            .loginProcessingUrl("/login2")
-                            .permitAll();
-                })
-                .logout(httpSecurityLogoutConfigurer -> httpSecurityLogoutConfigurer.permitAll())
+                authorizationManagerRequestMatcherRegistry -> {
+                    authorizationManagerRequestMatcherRegistry.anyRequest().permitAll();
+                });
 
-        ;
-
-        //http.httpBasic(Customizer.withDefaults());
         return http.build();
     }
 }
